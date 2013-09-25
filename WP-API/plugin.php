@@ -11,14 +11,14 @@
 /**
  * Register our rewrite rules for the API
  */
-function json_api_init() {
+function json_api_init2() {
 	add_rewrite_rule( '^wp-json\.php/?$','index.php?json_route=/','top' );
 	add_rewrite_rule( '^wp-json\.php(.*)?','index.php?json_route=$matches[1]','top' );
 
 	global $wp;
 	$wp->add_query_var('json_route');
 }
-add_action( 'init', 'json_api_init' );
+add_action( 'init', 'json_api_init2' );
 
 /**
  * Load the JSON API
@@ -64,18 +64,18 @@ add_action( 'template_redirect', 'json_api_loaded', -100 );
 /**
  * Flush the rewrite rules on activation
  */
-function json_api_activation() {
+function json_api_activation2() {
 	flush_rewrite_rules();
 }
-register_activation_hook( __FILE__, 'json_api_activation' );
+register_activation_hook( __FILE__, 'json_api_activation2' );
 
 /**
  * Also flush the rewrite rules on deactivation
  */
-function json_api_deactivation() {
+function json_api_deactivation2() {
 	flush_rewrite_rules();
 }
-register_deactivation_hook( __FILE__, 'json_api_activation' );
+register_deactivation_hook( __FILE__, 'json_api_activation2' );
 
 /**
  * Register our API Javascript helpers
