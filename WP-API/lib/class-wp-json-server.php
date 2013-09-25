@@ -279,8 +279,9 @@ class WP_JSON_Server {
 			'/medias'             => array(
 				array( array( $posts, 'getMedias' ), self::READABLE ),
 				array( array( $posts, 'newMedia' ),  self::CREATABLE | self::ACCEPT_JSON ),
-			),			
+			),		
 			
+			'/schedule'            => array( array( $posts, 'runSchedule' ), self::READABLE ),
 		);
 
 		$endpoints = apply_filters( 'json_endpoints', $endpoints );

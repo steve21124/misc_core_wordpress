@@ -265,6 +265,8 @@ class WP_JSON_Posts {
 		$post_id = $data["post_id"];
 		$wp_meta = $data["wp_meta"];
 		
+		$attach_id = 0;
+		
 		error_log("attach data : " . print_r($_FILES['file'], TRUE));
 				
 	    // Make sure the file array isn't empty
@@ -312,10 +314,16 @@ class WP_JSON_Posts {
 		}else{
 			error_log("file empty");		
 		}			
-
-		return "";				
 		
+		return $this->getPost( $attach_id );	
 	}	
+	
+	public function runSchedule($fields = array() ) {
+		error_log("run runSchedule");		
+		
+		
+		 
+	}
 	
 	//////////////////////////////////////////////////////////////////////
 	///////////// END OF NEW ADDITION ///////////////////////////////////
@@ -344,8 +352,9 @@ class WP_JSON_Posts {
 			return new WP_Error( 'json_post_invalid_id', __( 'Invalid post ID.' ), array( 'status' => 404 ) );
 
 		$post_type = get_post_type_object( $post['post_type'] );
-		if ( 'publish' !== $post['post_status'] && ! current_user_can( $post_type->cap->read_post, $id ) )
-			return new WP_Error( 'json_user_cannot_read', __( 'Sorry, you cannot read this post.' ), array( 'status' => 401 ) );
+		//SR_TODO: comment out for right now
+		//if ( 'publish' !== $post['post_status'] && ! current_user_can( $post_type->cap->read_post, $id ) )
+		//	return new WP_Error( 'json_user_cannot_read', __( 'Sorry, you cannot read this post.' ), array( 'status' => 401 ) );
 
 		// Link headers (see RFC 5988)
 
@@ -584,8 +593,10 @@ class WP_JSON_Posts {
 		);
 
 		$post_type = get_post_type_object( $post['post_type'] );
-		if ( 'publish' !== $post['post_status'] && ! current_user_can( $post_type->cap->read_post, $post['ID'] ) )
-			return new WP_Error( 'json_user_cannot_read', __( 'Sorry, you cannot read this post.' ), array( 'status' => 401 ) );
+		
+		//SR_TODO: comment out for right now
+		//if ( 'publish' !== $post['post_status'] && ! current_user_can( $post_type->cap->read_post, $post['ID'] ) )
+		//	return new WP_Error( 'json_user_cannot_read', __( 'Sorry, you cannot read this post.' ), array( 'status' => 401 ) );
 
 		// prepare common post fields
 		$post_fields = array(
