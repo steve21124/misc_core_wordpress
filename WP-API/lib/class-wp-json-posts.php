@@ -271,11 +271,13 @@ class WP_JSON_Posts {
 				
 	    // Make sure the file array isn't empty
 	    if (!empty($_FILES['file'])) {
-	        $wp_filetype = wp_check_filetype(basename($_FILES['file']), null );
+			//this wp_check_filetype cause problem in thumbnail image generation. if commented out, it will not generated thumbnail images
+	        //$wp_filetype = wp_check_filetype(basename($_FILES['file']['tmp_name']), null );
 	        $wp_upload_dir = wp_upload_dir();
 	        $attachment = array(
 	           'guid' => $wp_upload_dir['baseurl'] . "/" . $_FILES['file'][name],
-	           'post_mime_type' => $_FILES['file']['type'],
+	           //'post_mime_type' => $_FILES['file']['type'],
+			   'post_mime_type' => 'image/jpeg',
 	           'post_title' => preg_replace('/\.[^.]+$/', '', $_POST['title']),
 	           'post_content' => '',
 	           'post_status' => 'inherit'
