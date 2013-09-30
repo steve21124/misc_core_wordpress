@@ -322,11 +322,53 @@ class WP_JSON_Posts {
 		return $this->getPost( $attach_id );	
 	}	
 	
-	public function runSchedule($fields = array() ) {
-		error_log("run runSchedule");		
+	public function runSchedule($fields = array() ) {	
+		error_log("run runSchedule : " . print_r($fields, TRUE));
+		//loading json from articles and post it to S3
+		//http://localhost/wp_api/v1/posts
+		$url = "http://localhost/wp_api/v1/posts";
 		
+	    if ( ! filter_var($url, FILTER_VALIDATE_URL) ) return false;
+	    $remote_file = wp_remote_get( $url );
 		
-		 
+		error_log("runSchedule upload parameters  : " . print_r($remote_file, TRUE));
+		
+	    if ( ! is_wp_error(  $remote_file ) ) {
+			$mime = "application/json";
+	        if (!$json) {
+	            $json = '{}';
+	        }		
+			
+			$ending = ".json";
+						
+	      	//$upload = wp_upload_bits( $basename($url.$ending), '', wp_remote_retrieve_body($remote_file) );
+			
+			$base = basename("http://localhost/wp_api/v1/posts.json");
+			
+			error_log("base parameters  : " . print_r($base, TRUE));
+			
+			$upload = wp_upload_bits( $base, '', wp_remote_retrieve_body($remote_file) );
+		  
+	   	   	error_log("runSchedule upload parameters  : " . print_r($upload, TRUE));
+	   
+          	if (isset($upload['error']) && $upload['error'] != 0) {
+   		   		error_log('There was an error uploading your file. The error is: ' . $upload['error']);
+
+          	} else {
+      			$backend = new WordpressReadOnlyS3();	
+				
+				error_log('WordpressReadOnlyS3 : bucket : ' . $backend->bucket);
+				error_log('WordpressReadOnlyS3 : ending : ' . $backend->endpoint);
+				error_log('WordpressReadOnlyS3 : wpro-folder : ' . get_option('wpro-folder'));				
+				$upload_s3_site = 'http://' . $backend->bucket . '.' . $backend->endpoint . '/' . get_option('wpro-folder') . '/posts.json'; 
+				error_log('WordpressReadOnlyS3 : $upload_s3_site : ' . $upload_s3_site);	
+				
+      			//$backend->upload( $upload['file'],  $upload['url'], $mime );			   		   
+				$backend->upload( $upload['file'],  $upload_s3_site, $mime );			   		   
+   	   	  	}
+	   		  
+	    }
+	
 	}
 	
 	//////////////////////////////////////////////////////////////////////
