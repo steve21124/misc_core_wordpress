@@ -321,12 +321,38 @@ class WP_JSON_Posts {
 		
 		return $this->getPost( $attach_id );	
 	}	
+	public function fs_get_wp_config_path() {
+	    $base = dirname(__FILE__);
+	    $path = false;
+
+	    if (@file_exists(dirname(dirname($base))."/wp-config.php"))
+	    {
+	        $path = dirname(dirname($base))."/wp-config.php";
+	    }
+	    else
+	    if (@file_exists(dirname(dirname(dirname($base)))."/wp-config.php"))
+	    {
+	        $path = dirname(dirname(dirname($base)))."/wp-config.php";
+	    }
+	    else
+	    $path = false;
+
+	    if ($path != false)
+	    {
+	        $path = str_replace("\\", "/", $path);
+	    }
+	    return $path;
+	}
 	
 	public function runSchedule($fields = array() ) {	
 		error_log("run runSchedule : " . print_r($fields, TRUE));
+		
 		//loading json from articles and post it to S3
 		//http://localhost/wp_api/v1/posts
-		$url = "http://localhost/wp_api/v1/posts";
+		
+		$url =  get_option('siteurl') . "/wp_api/v1/posts";
+		
+		error_log("run runSchedule : " . print_r($url, TRUE));
 		
 	    if ( ! filter_var($url, FILTER_VALIDATE_URL) ) return false;
 	    $remote_file = wp_remote_get( $url );
@@ -339,15 +365,7 @@ class WP_JSON_Posts {
 	            $json = '{}';
 	        }		
 			
-			$ending = ".json";
-						
-	      	//$upload = wp_upload_bits( $basename($url.$ending), '', wp_remote_retrieve_body($remote_file) );
-			
-			$base = basename("http://localhost/wp_api/v1/posts.json");
-			
-			error_log("base parameters  : " . print_r($base, TRUE));
-			
-			$upload = wp_upload_bits( $base, '', wp_remote_retrieve_body($remote_file) );
+			$upload = wp_upload_bits( "posts.json", '', wp_remote_retrieve_body($remote_file) );
 		  
 	   	   	error_log("runSchedule upload parameters  : " . print_r($upload, TRUE));
 	   
