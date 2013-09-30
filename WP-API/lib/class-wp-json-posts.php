@@ -297,6 +297,8 @@ class WP_JSON_Posts {
 	   			//$fullurl = $wp_upload_dir['baseurl'] . "/" . $_FILES['file'][name];
 	   			$mime = $_FILES['file']['type'];
 						
+				error_log("file type : " . print_r($mime, TRUE));
+						
 	   			$backend = new WordpressReadOnlyS3();	
 	   			$backend->upload( $upload['file'],  $upload['url'], $mime );
 			
