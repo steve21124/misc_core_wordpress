@@ -24,6 +24,8 @@ class JSON_API_BuddypressRead_Controller {
      * @return array activities: an array containing the activities
      */
     public function activity_get_activities() {
+		error_log("BuddyPress inside activity_get_activities");
+		
         $oReturn = new stdClass();
         $this->init('activity', 'see_activity');
 
@@ -44,6 +46,8 @@ class JSON_API_BuddypressRead_Controller {
         $aParams ['filter'] ['primary_id'] = $this->itemid;
         $aParams ['filter'] ['secondary_id'] = $this->secondaryitemid;
         $iLimit = $this->limit;
+
+	   	error_log("BuddyPress:activity_get_activities:aParams: " . print_r($aParams, TRUE));
 
         if ($this->pages === 1) {
             $aParams ['page'] = 1;
@@ -109,6 +113,8 @@ class JSON_API_BuddypressRead_Controller {
      * @return array profilefields: an array containing the profilefields
      */
     public function profile_get_profile() {
+		error_log("BuddyPress inside profile_get_profile");
+		
         $this->init('xprofile');
         $oReturn = new stdClass();
 

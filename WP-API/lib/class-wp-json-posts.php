@@ -261,6 +261,32 @@ class WP_JSON_Posts {
 	}
 	function newMedia( $data ) {
 		global $wpdb;
+		$post_id = $data["post_id"];
+		$user_id = $data["user_id"];
+		$wp_meta = $data["wp_meta"];
+		$wp_filename = $data["filename"];
+		$wp_media_title = $data["media_title"]; 		
+		$s3_image_link = $data["s3_image_link"]; 
+		$response = '';		
+		
+        $wp_upload_dir = wp_upload_dir();
+        $attachment = array(
+           'guid' => $s3_image_link,
+		   'post_mime_type' => 'image/jpeg',
+           'post_title' => wp_media_title,
+           'post_content' => '',
+           'post_status' => 'inherit'
+        );
+		$attach_id = wp_insert_attachment( $attachment, null, $post_id );
+  	    $attach_data = wp_generate_attachment_metadata( $attach_id, null );
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+		add_post_meta($post_id, $wp_meta, $attach_id);							
+	}
+	
+	
+	/*instead of uploading files here, the files uploaded to s3 directly 
+	function newMedia( $data ) {
+		global $wpdb;
 		error_log ("inside newMedia");
 		$post_id = $data["post_id"];
 		$wp_meta = $data["wp_meta"];
@@ -321,6 +347,8 @@ class WP_JSON_Posts {
 		
 		return $this->getPost( $attach_id );	
 	}	
+	*/
+	
 	public function fs_get_wp_config_path() {
 	    $base = dirname(__FILE__);
 	    $path = false;
