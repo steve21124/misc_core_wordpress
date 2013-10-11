@@ -273,14 +273,15 @@ class WP_JSON_Posts {
         $attachment = array(
            'guid' => $s3_image_link,
 		   'post_mime_type' => 'image/jpeg',
-           'post_title' => wp_media_title,
+           'post_title' => $wp_media_title,
            'post_content' => '',
            'post_status' => 'inherit'
         );
 		$attach_id = wp_insert_attachment( $attachment, null, $post_id );
   	    $attach_data = wp_generate_attachment_metadata( $attach_id, null );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
-		add_post_meta($post_id, $wp_meta, $attach_id);							
+		add_post_meta($post_id, $wp_meta, $attach_id);		
+		return $this->getPost( $attach_id );					
 	}
 	
 	
