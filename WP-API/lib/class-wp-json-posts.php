@@ -261,6 +261,8 @@ class WP_JSON_Posts {
 	}
 	
 	function newMedia( $data ) {
+		error_log(" data : " . print_r($data, TRUE));
+		
 		global $wpdb;
 		$post_id = $data["post_id"];
 		$user_id = $data["user_id"];
@@ -315,6 +317,7 @@ class WP_JSON_Posts {
 		
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		add_post_meta($post_id, $wp_meta, $attach_id);		
+		add_post_meta($attach_id,"_wp_attachment_image_alt",$wp_meta_title);
 		return $this->getPost( $attach_id );					
 	}
 	
