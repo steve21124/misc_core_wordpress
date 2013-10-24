@@ -259,12 +259,15 @@ class WP_JSON_Posts {
 	
 		return "";
 	}
+	
 	function newMedia( $data ) {
 		global $wpdb;
 		$post_id = $data["post_id"];
 		$user_id = $data["user_id"];
 		$wp_meta = $data["wp_meta"];
+		$wp_meta_title = $data["wp_meta_title"];  //sunny, raining, thunder, etc
 		$wp_filename = $data["filename"];
+		$wp_filename_thumb = $data["filename_thumb"];
 		$wp_media_title = $data["media_title"]; 		
 		$s3_image_link = $data["s3_image_link"]; 
 		$response = '';		
@@ -278,7 +281,38 @@ class WP_JSON_Posts {
            'post_status' => 'inherit'
         );
 		$attach_id = wp_insert_attachment( $attachment, null, $post_id );
-  	    $attach_data = wp_generate_attachment_metadata( $attach_id, null );
+  	    //$attach_data = wp_generate_attachment_metadata( $attach_id, null );
+		
+		//hacking attach data by creating it progmatically
+        $attach_data = array(
+           'width' => 478,
+		   'height' => 640,
+           'file' => $wp_filename,
+		   'alt_text'  => $wp_meta_title,
+           'sizes' => array(
+		   		'thumbnail' => array(
+					'file' => $wp_filename_thumb,
+					'width' => 150,
+					'height' => 150,
+					'mime-type' => 'image/jpeg'
+				),
+		   		'medium' => array(
+					'file' => $wp_filename,
+					'width' => 150,
+					'height' => 150,
+					'mime-type' => 'image/jpeg'
+				),
+		   		'post-thumbnail' => array(
+					'file' => $wp_filename_thumb,
+					'width' => 150,
+					'height' => 150,
+					'mime-type' => 'image/jpeg'
+				)		   
+		   )
+        );
+		
+		error_log("attach data : " . print_r($attach_data, TRUE));
+		
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		add_post_meta($post_id, $wp_meta, $attach_id);		
 		return $this->getPost( $attach_id );					
@@ -381,10 +415,10 @@ class WP_JSON_Posts {
 		
 		$url =  get_option('siteurl') . "/wp_api/v1/posts";
 		
-		error_log("run runSchedule : " . print_r($url, TRUE));
+		//error_log("run runSchedule : " . print_r($url, TRUE));
 		
 	    if ( ! filter_var($url, FILTER_VALIDATE_URL) ) return false;
-	    $remote_file = wp_remote_get( $url );
+	    $remote_file = wp_remote_get( $url,array( 'timeout' => 3000 ) );
 		
 		error_log("runSchedule upload parameters  : " . print_r($remote_file, TRUE));
 		
@@ -404,9 +438,9 @@ class WP_JSON_Posts {
           	} else {
       			$backend = new WordpressReadOnlyS3();	
 				
-				error_log('WordpressReadOnlyS3 : bucket : ' . $backend->bucket);
-				error_log('WordpressReadOnlyS3 : ending : ' . $backend->endpoint);
-				error_log('WordpressReadOnlyS3 : wpro-folder : ' . get_option('wpro-folder'));				
+				//error_log('WordpressReadOnlyS3 : bucket : ' . $backend->bucket);
+				//error_log('WordpressReadOnlyS3 : ending : ' . $backend->endpoint);
+				//error_log('WordpressReadOnlyS3 : wpro-folder : ' . get_option('wpro-folder'));				
 				$upload_s3_site = 'http://' . $backend->bucket . '.' . $backend->endpoint . '/' . get_option('wpro-folder') . '/posts.json'; 
 				error_log('WordpressReadOnlyS3 : $upload_s3_site : ' . $upload_s3_site);	
 				

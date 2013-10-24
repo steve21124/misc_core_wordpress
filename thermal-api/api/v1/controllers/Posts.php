@@ -241,6 +241,8 @@ class PostsController {
 			// get direct post attachments
 			$arr_metas = get_post_meta( $post->ID );
 			
+			error_log("get_post_meta : " . print_r($arr_metas, TRUE));
+			
 			foreach ($arr_metas as $image_key=>$image_ids){
 				if (fnmatch("*post_id*", $image_key)) {
 					//need only the first array items
@@ -249,7 +251,7 @@ class PostsController {
 					array_push($attachment_ids, $meta[$image_key]); 
 				}				
 			}
-
+			error_log("attachment_ids : " . print_r($attachment_ids, TRUE));
 			/////////////////////// END of adding Adding getting images for features images  SR_TODO
 
 			//error_log(print_r($attachment_ids, TRUE));
@@ -260,7 +262,8 @@ class PostsController {
 					$media[$attachment_id] = $image_item;
 				}
 			}
-
+			error_log("$media : " . print_r($media, TRUE));
+			
 			// get taxonomy data
 			$post_taxonomies = array( );
 			$taxonomies = get_object_taxonomies( $post->post_type );
