@@ -261,7 +261,7 @@ class WP_JSON_Posts {
 	}
 	
 	function newMedia( $data ) {
-		error_log(" data : " . print_r($data, TRUE));
+		//error_log(" data : " . print_r($data, TRUE));
 		
 		global $wpdb;
 		$post_id = $data["post_id"];
@@ -273,6 +273,35 @@ class WP_JSON_Posts {
 		$wp_media_title = $data["media_title"]; 		
 		$s3_image_link = $data["s3_image_link"]; 
 		$response = '';		
+		
+		
+		//================== Check if existing media exist. if it is deleted it
+			
+		// Get an array of Ancestors and Parents if they exist 
+		$parents = get_post_ancestors( $post_id );
+		// Get the top Level page->ID count base 1, array base 0 so -1 
+		$parent_id = ($parents) ? $parents[count($parents)-1]: $post_id;
+		
+		$children_images =& get_children( 'post_parent=$parent_id&post_type=attachment&post_mime_type=image' );
+		error_log("children images : " . print_r($children_images, TRUE));
+		if ( empty($children_images) ) {
+			// no attachments here
+		} else {
+			foreach ( $children_images as  $attachment ) {
+				//echo wp_get_attachment_image( $attachment_id, 'full' );
+				if ($attachment->post_title == $wp_media_title) {
+					//delete existing same attachment theme
+					wp_delete_post($attachment->ID);
+					delete_post_meta($attachment->ID,"_wp_attachment_image_alt",$wp_meta_title);
+				    //wp_delete_attachment()
+				}
+			}
+		}
+		
+		//============= end of checking existing media ============		
+		
+		
+		
 		
         $wp_upload_dir = wp_upload_dir();
         $attachment = array(
@@ -313,11 +342,12 @@ class WP_JSON_Posts {
 		   )
         );
 		
-		error_log("attach data : " . print_r($attach_data, TRUE));
+		//error_log("attach data : " . print_r($attach_data, TRUE));
 		
 		wp_update_attachment_metadata( $attach_id, $attach_data );
-		add_post_meta($post_id, $wp_meta, $attach_id);		
-		add_post_meta($attach_id,"_wp_attachment_image_alt",$wp_meta_title);
+							
+		update_post_meta($post_id, $wp_meta, $attach_id);		
+		update_post_meta($attach_id,"_wp_attachment_image_alt",$wp_meta_title);
 		return $this->getPost( $attach_id );					
 	}
 	
@@ -331,7 +361,7 @@ class WP_JSON_Posts {
 		
 		$attach_id = 0;
 		
-		error_log("attach data : " . print_r($_FILES['file'], TRUE));
+		//error_log("attach data : " . print_r($_FILES['file'], TRUE));
 				
 	    // Make sure the file array isn't empty
 	    if (!empty($_FILES['file'])) {
@@ -356,12 +386,12 @@ class WP_JSON_Posts {
 
            } else {
 			   
-			   error_log("upload : " . print_r($upload, TRUE));
+			   //error_log("upload : " . print_r($upload, TRUE));
 			   
 	   			//$fullurl = $wp_upload_dir['baseurl'] . "/" . $_FILES['file'][name];
 	   			$mime = $_FILES['file']['type'];
 						
-				error_log("file type : " . print_r($mime, TRUE));
+				//error_log("file type : " . print_r($mime, TRUE));
 						
 	   			$backend = new WordpressReadOnlyS3();	
 	   			$backend->upload( $upload['file'],  $upload['url'], $mime );
@@ -369,8 +399,8 @@ class WP_JSON_Posts {
 	   			$attach_id = wp_insert_attachment( $attachment, $upload['file'], $post_id );
 	      	    $attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
 	
-	   			error_log("attach id : " . print_r($attach_id, TRUE));
-	   			error_log("attach data : " . print_r($attach_data, TRUE));
+	   			//error_log("attach id : " . print_r($attach_id, TRUE));
+	   			//error_log("attach data : " . print_r($attach_data, TRUE));
 			
 			
       			wp_update_attachment_metadata( $attach_id, $attach_data );
@@ -380,7 +410,7 @@ class WP_JSON_Posts {
 					   			
 			  					 			 
 		}else{
-			error_log("file empty");		
+			//error_log("file empty");		
 		}			
 		
 		return $this->getPost( $attach_id );	
